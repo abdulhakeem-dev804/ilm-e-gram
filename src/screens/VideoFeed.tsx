@@ -6,6 +6,8 @@ import {
   Dimensions,
   ViewToken,
   ViewabilityConfig,
+  RefreshControl,
+  Alert,
 } from 'react-native';
 import VideoPlayer from '../components/VideoPlayer';
 import {videos} from '../data/videos';
@@ -14,9 +16,20 @@ const {height} = Dimensions.get('window');
 
 const VideoFeed: React.FC = () => {
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
   const viewabilityConfig = useRef<ViewabilityConfig>({
     itemVisiblePercentThreshold: 50,
   }).current;
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    // Simulate fetching new reels from server
+    setTimeout(() => {
+      setRefreshing(false);
+      // In a real app, you would fetch new reels here
+      Alert.alert('Reels Updated', 'Showing latest reels');
+    }, 1500);
+  }, []);
 
   const onViewableItemsChanged = useRef(
     ({viewableItems}: {viewableItems: ViewToken[]}) => {
@@ -62,6 +75,14 @@ const VideoFeed: React.FC = () => {
         removeClippedSubviews
         maxToRenderPerBatch={2}
         windowSize={3}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#fff"
+            colors={['#fff']}
+          />
+        }
       />
     </View>
   );

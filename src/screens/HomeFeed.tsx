@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Alert,
   ScrollView,
+  RefreshControl,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -122,6 +123,17 @@ const MOCK_STORIES: Story[] = [
 const HomeFeed: React.FC = () => {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [savedPosts, setSavedPosts] = useState<Set<string>>(new Set());
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    // Simulate fetching new posts from server
+    setTimeout(() => {
+      setRefreshing(false);
+      // In a real app, you would fetch new posts here
+      Alert.alert('Feed Updated', 'Showing latest posts');
+    }, 1500);
+  };
 
   const onLikePress = (post: HomePost) => {
     setLikedPosts(prev => {
@@ -339,6 +351,14 @@ const HomeFeed: React.FC = () => {
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#262626"
+            colors={['#262626']}
+          />
+        }
       />
     </SafeAreaView>
   );
