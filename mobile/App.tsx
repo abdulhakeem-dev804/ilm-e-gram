@@ -10,13 +10,40 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
 import VideoFeed from './src/screens/VideoFeed';
 import HomeFeed from './src/screens/HomeFeed';
+import MessagesScreen from './src/screens/MessagesScreen';
+import ChatScreen from './src/screens/ChatScreen';
+import {Conversation} from './src/types';
+
+type Screen = 'home' | 'search' | 'create' | 'reels' | 'profile' | 'messages' | 'chat';
 
 function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'search' | 'create' | 'reels' | 'profile'>('home');
+  const [currentScreen, setCurrentScreen] = useState<Screen>('home');
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
 
-  // Determine status bar style based on active tab
-  const statusBarStyle = activeTab === 'home' ? 'dark-content' : 'light-content';
-  const statusBarBg = activeTab === 'home' ? '#fff' : '#000';
+  // Determine status bar style based on active tab and screen
+  const isLightScreen = currentScreen === 'home' || currentScreen === 'messages' || currentScreen === 'chat';
+  const statusBarStyle = isLightScreen ? 'dark-content' : 'light-content';
+  const statusBarBg = isLightScreen ? '#fff' : '#000';
+
+  const handleOpenMessages = () => {
+    setCurrentScreen('messages');
+  };
+
+  const handleBackFromMessages = () => {
+    setCurrentScreen('home');
+    setActiveTab('home');
+  };
+
+  const handleConversationPress = (conversation: Conversation) => {
+    setSelectedConversation(conversation);
+    setCurrentScreen('chat');
+  };
+
+  const handleBackFromChat = () => {
+    setCurrentScreen('messages');
+    setSelectedConversation(null);
+  };
 
   const renderPlaceholder = (tabName: string) => (
     <View style={[styles.placeholderScreen, activeTab === 'home' && styles.placeholderLight]}>
@@ -34,24 +61,43 @@ function App() {
       <SafeAreaProvider>
         <StatusBar barStyle={statusBarStyle} backgroundColor={statusBarBg} />
         <View style={styles.appContainer}>
-          {activeTab === 'home' && <HomeFeed />}
-          {activeTab === 'search' && renderPlaceholder('Search')}
-          {activeTab === 'create' && renderPlaceholder('Create')}
-          {activeTab === 'reels' && <VideoFeed />}
-          {activeTab === 'profile' && renderPlaceholder('Profile')}
+          {/* Render screens based on currentScreen */}
+          {currentScreen === 'messages' && (
+            <MessagesScreen
+              onBack={handleBackFromMessages}
+              onConversationPress={handleConversationPress}
+            />
+          )}
+          {currentScreen === 'chat' && selectedConversation && (
+            <ChatScreen
+              conversation={selectedConversation}
+              onBack={handleBackFromChat}
+            />
+          )}
+          {currentScreen === 'home' && activeTab === 'home' && (
+            <HomeFeed onOpenMessages={handleOpenMessages} />
+          )}
+          {currentScreen === 'home' && activeTab === 'search' && renderPlaceholder('Search')}
+          {currentScreen === 'home' && activeTab === 'create' && renderPlaceholder('Create')}
+          {currentScreen === 'home' && activeTab === 'reels' && <VideoFeed />}
+          {currentScreen === 'home' && activeTab === 'profile' && renderPlaceholder('Profile')}
 
-          {/* Bottom navigation bar - Instagram style */}
-          <View style={[styles.bottomNav, activeTab === 'home' && styles.bottomNavLight]}>
-            <TouchableOpacity
-              style={styles.navItem}
-              onPress={() => setActiveTab('home')}
-              activeOpacity={0.7}>
-              <Icon
-                name={activeTab === 'home' ? 'home' : 'home-outline'}
-                size={28}
-                color={activeTab === 'home' ? '#000' : (activeTab === 'home' ? '#000' : '#fff')}
-              />
-            </TouchableOpacity>
+          {/* Bottom navigation bar - Instagram style - Hide on messages/chat screens */}
+          {currentScreen === 'home' && (
+            <View style={[styles.bottomNav, activeTab === 'home' && styles.bottomNavLight]}>
+              <TouchableOpacity
+                style={styles.navItem}
+                onPress={() => {
+                  setActiveTab('home');
+                  setCurrentScreen('home');
+                }}
+                activeOpacity={0.7}>
+                <Icon
+                  name={activeTab === 'home' ? 'home' : 'home-outline'}
+                  size={28}
+                  color={activeTab === 'home' ? '#000' : (activeTab === 'home' ? '#000' : '#fff')}
+                />
+              </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.navItem}
@@ -104,6 +150,7 @@ function App() {
               </View>
             </TouchableOpacity>
           </View>
+          )}
         </View>
       </SafeAreaProvider>
     </GestureHandlerRootView>

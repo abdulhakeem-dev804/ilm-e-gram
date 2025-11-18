@@ -20,3 +20,22 @@ declare module 'react-native-video' {
 
   export default class Video extends Component<VideoProperties> {}
 }
+
+// Chat & Messaging Types
+export type Message = {
+  id: string;
+  text: string;
+  senderId: string;
+  timestamp: Date;
+  status?: 'sent' | 'delivered' | 'read';
+};
+
+export type Conversation = {
+  id: string;
+  username: string;
+  avatar: string;
+  lastMessage: string;
+  timestamp: string;
+  unread: boolean;
+  isOnline?: boolean;
+};

@@ -120,7 +120,11 @@ const MOCK_STORIES: Story[] = [
   },
 ];
 
-const HomeFeed: React.FC = () => {
+type HomeFeedProps = {
+  onOpenMessages?: () => void;
+};
+
+const HomeFeed: React.FC<HomeFeedProps> = ({onOpenMessages}) => {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [savedPosts, setSavedPosts] = useState<Set<string>>(new Set());
   const [refreshing, setRefreshing] = useState(false);
@@ -297,7 +301,7 @@ const HomeFeed: React.FC = () => {
             <Icon name="heart-outline" size={26} color="#262626" />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => Alert.alert('Messages', 'Direct messages screen (placeholder)')}
+            onPress={() => onOpenMessages ? onOpenMessages() : Alert.alert('Messages', 'Direct messages screen (placeholder)')}
             style={styles.headerButton}
             hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
             <MaterialIcon name="facebook-messenger" size={24} color="#262626" />
